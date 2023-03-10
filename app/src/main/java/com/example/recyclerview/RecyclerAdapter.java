@@ -17,30 +17,54 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> implements Filterable {
+public class RecyclerAdapter extends RecyclerView.Adapter{
     private static final String TAG = "RecyclerAdapter";
     List<String> moviesList;
-    List<String> moviesListAll;
+
 
     public RecyclerAdapter(List<String> moviesList) {
         this.moviesList = moviesList;
-        this.moviesListAll = new ArrayList<>(moviesList);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (moviesList.get(position).toLowerCase().contains("iron")){
+            return 0;
+        }
+        return 1;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.row_item,parent,false);
-        ViewHolder viewHolder = new ViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        return viewHolder;
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View view;
+        if (viewType == 0){
+            view=layoutInflater.inflate(R.layout.row_item,parent,false);
+            return new ViewHolderOne(view);
+        }
+        view = layoutInflater.inflate(R.layout.another_row_item,parent,false);
+        return new ViewHolderTwo(view);
+
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.rowCountTextView.setText(String.valueOf(position));
-        holder.textView.setText(moviesList.get(position));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (moviesList.get(position).toLowerCase().contains("iron"))
+        {
+            //bind viewHolderOne
+            ViewHolderOne viewHolderOne = (ViewHolderOne) holder;
+            viewHolderOne.textView.setText(moviesList.get(position));
+            viewHolderOne.rowCountTextView.setText(String.valueOf(position));
+
+        } else {
+            //bind viewHolderTwo
+            ViewHolderTwo viewHolderTwo = (ViewHolderTwo) holder;
+            viewHolderTwo.textView.setText(moviesList.get(position));
+            viewHolderTwo.rowCountTextView.setText(String.valueOf(position));
+
+        }
     }
 
     @Override
@@ -48,69 +72,28 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return moviesList.size();
     }
 
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
+    class ViewHolderOne extends RecyclerView.ViewHolder{
 
-    Filter filter = new Filter() {
-        // run on background thread
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            if(moviesListAll.size()==0)moviesListAll = new ArrayList<>(moviesList);
-            List<String> filteredList = new ArrayList<>();
-            if(constraint.toString().isEmpty()){
-                filteredList.addAll(moviesListAll);
-            }else{
-                for(String movie:moviesListAll){
-                    if(movie.toLowerCase().contains(constraint.toString().toLowerCase())){
-                       filteredList.add(movie);
-                    }
-                }
-            }
-
-            FilterResults filterResults = new FilterResults();
-            filterResults.values= filteredList;
-
-            return filterResults;
-        }
-
-        //run on ui thread
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults filterResults) {
-            moviesList.clear();
-            moviesList.addAll((Collection<? extends String>) filterResults.values);
-            notifyDataSetChanged();
-        }
-    };
-
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-
-        ImageView imageView;
         TextView textView, rowCountTextView;
+        ImageView imageView;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolderOne(@NonNull View itemView) {
             super(itemView);
 
-            imageView = itemView.findViewById(R.id.imageView);
             textView = itemView.findViewById(R.id.textView);
             rowCountTextView = itemView.findViewById(R.id.rowCountTextView);
-
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    moviesList.remove(getAdapterPosition());
-                    notifyItemRemoved(getAdapterPosition());
-                    return true;
-                }
-            });
-
+            imageView = itemView.findViewById(R.id.imageView);
         }
+    }
 
-        @Override
-        public void onClick(View view) {
-            Toast.makeText(view.getContext(),moviesList.get(getAdapterPosition()), Toast.LENGTH_SHORT).show();
+    class ViewHolderTwo extends RecyclerView.ViewHolder{
+
+        TextView textView, rowCountTextView;
+        public ViewHolderTwo(@NonNull View itemView) {
+            super(itemView);
+
+            textView = itemView.findViewById(R.id.textView);
+            rowCountTextView = itemView.findViewById(R.id.rowCountTextView);
         }
     }
 }

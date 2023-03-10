@@ -74,7 +74,7 @@ import java.util.List;
 
              @Override
              public boolean onQueryTextChange(String newText) {
-                 recyclerAdapter.getFilter().filter(newText);
+//                 recyclerAdapter.getFilter().filter(newText);
                  return false;
              }
          });
