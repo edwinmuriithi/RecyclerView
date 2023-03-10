@@ -4,6 +4,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,15 +13,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder>{
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> implements Filterable {
     private static final String TAG = "RecyclerAdapter";
-
     List<String> moviesList;
+    List<String> moviesListAll;
 
     public RecyclerAdapter(List<String> moviesList) {
         this.moviesList = moviesList;
+        this.moviesListAll = new ArrayList<>(moviesList);
     }
 
     @NonNull
@@ -42,6 +47,42 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public int getItemCount() {
         return moviesList.size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    Filter filter = new Filter() {
+        // run on background thread
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            if(moviesListAll.size()==0)moviesListAll= new ArrayList<>(moviesList);
+            List<String> filteredList = new ArrayList<>();
+            if(constraint.toString().isEmpty()){
+                filteredList.addAll(moviesListAll);
+            }else{
+                for(String movie:moviesListAll){
+                    if(movie.toLowerCase().contains(constraint.toString().toLowerCase())){
+                       filteredList.add(movie);
+                    }
+                }
+            }
+
+            FilterResults filterResults = new FilterResults();
+            filterResults.values= filteredList;
+
+            return filterResults;
+        }
+
+        //run on ui thread
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults filterResults) {
+            moviesList.clear();
+            moviesList.addAll((Collection<? extends String>) filterResults.values);
+            notifyDataSetChanged();
+        }
+    };
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
