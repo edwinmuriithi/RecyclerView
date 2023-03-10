@@ -57,7 +57,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         // run on background thread
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-            if(moviesListAll.size()==0)moviesListAll= new ArrayList<>(moviesList);
+            if(moviesListAll.size()==0)moviesListAll = new ArrayList<>(moviesList);
             List<String> filteredList = new ArrayList<>();
             if(constraint.toString().isEmpty()){
                 filteredList.addAll(moviesListAll);
